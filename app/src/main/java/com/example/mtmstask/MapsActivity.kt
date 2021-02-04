@@ -9,8 +9,12 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.mtmstask.adapters.LocationsAdapter
+import com.example.mtmstask.databinding.ActivityMapsBinding
 import com.example.mtmstask.viewmodels.MapsActivityVM
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -29,10 +33,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private val PERMISSION_ID=11
     private lateinit var mMap: GoogleMap
     lateinit var mapsActivityVm:MapsActivityVM
+    lateinit var binding:ActivityMapsBinding
+    lateinit var adapter:LocationsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_maps)
+        binding=DataBindingUtil.setContentView(this,R.layout.activity_maps)
 
         mapsActivityVm=ViewModelProvider(this).get(MapsActivityVM::class.java)
 
@@ -41,17 +47,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         requestPermission()
+        adapter= LocationsAdapter()
+
+        binding.locationsRecycler.adapter=adapter
+        binding.locationsRecycler.layoutManager=LinearLayoutManager(this)
+
+        binding.myLocationIL
+            .editText
+            ?.setOnClickListener{
+                getLocations()
+            }
+
+
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
     }
@@ -73,7 +82,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_ID) {
             if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getLocation()
+                getCurrentLocation()
 
             }
         }
@@ -81,7 +90,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
 
-    fun getLocation(){
+    fun getCurrentLocation(){
         if (!mapsActivityVm.isLocationEnabled(this)){
             Toast.makeText(this, "Please turn on your location ", Toast.LENGTH_LONG).show()
             val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
@@ -98,8 +107,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val result=mapsActivityVm.getLocation(applicationContext)
             Log.d("TAG", "getLocation : $result")
             val location=result.res
+
             if (location!=null){
-                val currentLocation = LatLng(location.latitude, location.longitude)
+                val lat=location.latitude
+                val lng=location.longitude
+                if (lat==null||lng==null){
+                    return@launch
+                }
+
+                val currentLocation = LatLng(lat, lng)
                 Log.d("TAG", "currentLocation: $currentLocation")
                 withContext(Dispatchers.Main){
                     mMap.addMarker(MarkerOptions().position(currentLocation))
@@ -112,6 +128,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
 
+        }
+    }
+
+    fun getLocations(){
+        lifecycleScope.launch {
+            val res=mapsActivityVm.getLocations()
+            if (res.success&&res.res!=null){
+                val locations=res.res
+                adapter.addLocations(locations)
+            }
         }
     }
 }

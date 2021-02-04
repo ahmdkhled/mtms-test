@@ -22,4 +22,9 @@ class MapsActivityVM :ViewModel() {
         return SourceRepo().getLocations()
     }
 
+    suspend fun getAutoCompleteListener(context:Context,query: String) {
+        return LocationRepo().getAutoComplete(context,query)
+    }
+
+
     }

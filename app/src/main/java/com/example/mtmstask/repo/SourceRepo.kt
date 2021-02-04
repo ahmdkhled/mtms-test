@@ -3,7 +3,6 @@ package com.example.mtmstask.repo
 import com.example.mtmstask.model.Location
 import com.example.mtmstask.model.Res
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.tasks.await
 
 class SourceRepo {
