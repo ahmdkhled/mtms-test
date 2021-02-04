@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.example.mtmstask.model.Location
 import com.example.mtmstask.model.Res
 import com.example.mtmstask.repo.LocationRepo
+import com.example.mtmstask.repo.SourceRepo
 
 class MapsActivityVM :ViewModel() {
 
@@ -17,4 +18,8 @@ class MapsActivityVM :ViewModel() {
      fun isLocationEnabled(context: Context): Boolean {
         return  LocationRepo().isLocationEnabled(context)
     }
-}
+    suspend fun getLocations(): Res<ArrayList<Location>> {
+        return SourceRepo().getLocations()
+    }
+
+    }

@@ -99,7 +99,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             Log.d("TAG", "getLocation : $result")
             val location=result.res
             if (location!=null){
-                val currentLocation = LatLng(location.latitude, location.longtude)
+                val currentLocation = LatLng(location.latitude, location.longitude)
                 Log.d("TAG", "currentLocation: $currentLocation")
                 withContext(Dispatchers.Main){
                     mMap.addMarker(MarkerOptions().position(currentLocation))

@@ -1,7 +1,8 @@
 package com.example.mtmstask.model
 
 data class Location(
-    var longtude:Double,
-    var latitude:Double
+    var longitude:Double?=null,
+    var latitude:Double?=null,
+    var name:String?=null
 ) {
 }

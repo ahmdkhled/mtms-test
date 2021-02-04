@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "99975573172",
+    "firebase_url": "https://chat-room-2aaa9.firebaseio.com",
+    "project_id": "chat-room-2aaa9",
+    "storage_bucket": "chat-room-2aaa9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:99975573172:android:a0439ceafb25a37405b1e1",
+        "android_client_info": {
+          "package_name": "com.example.mtmstask"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "99975573172-jh4cgqht776hcdtfofm96td16mongqj4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA846gT95NA_S8i8c71dA87XMeieauo2WM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "99975573172-jh4cgqht776hcdtfofm96td16mongqj4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
