@@ -19,6 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mtmstask.App
 import com.example.mtmstask.R
+import com.example.mtmstask.Utils
 import com.example.mtmstask.adapters.LocationsAdapter
 import com.example.mtmstask.databinding.ActivityHomeBinding
 import com.example.mtmstask.model.Location
@@ -45,6 +46,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback,LocationsAdapter.On
     lateinit var binding:ActivityHomeBinding
     @Inject lateinit var factory:HomeActivityVMFactory
     @Inject lateinit var adapter:LocationsAdapter
+    @Inject lateinit var layoutManager:LinearLayoutManager
+    @Inject lateinit var utils : Utils
     var type="source"
     lateinit var source:Location
     lateinit var destination:Location
@@ -60,7 +63,6 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback,LocationsAdapter.On
         homeActivityVm=ViewModelProvider(this,factory).get(HomeActivityVM::class.java)
 
 
-
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -74,7 +76,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback,LocationsAdapter.On
 
 
         binding.mapsView.locationsRecycler.adapter=adapter
-        binding.mapsView.locationsRecycler.layoutManager=LinearLayoutManager(this)
+        binding.mapsView.locationsRecycler.layoutManager=layoutManager
+        adapter.setOnLocationCLicked(this)
 
         binding.mapsView.myLocationIL
             .editText
@@ -117,6 +120,11 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback,LocationsAdapter.On
                 }
 
             })
+
+
+        binding.mapsView.requestRD.setOnClickListener {
+            getDriversLocations()
+        }
 
     }
 
@@ -193,7 +201,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback,LocationsAdapter.On
     fun getLocations(){
         lifecycleScope.launch {
             Log.d("TAG", "getLocations: ")
-            val res=homeActivityVm.getLocations()
+            val res=homeActivityVm.getLocations("source")
             Log.d("TAG", "getLocations: $res")
             if (res.success&&res.res!=null){
                 type="source"
@@ -210,5 +218,21 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback,LocationsAdapter.On
             source=location
         }else
             destination=location
+    }
+    fun getDriversLocations(){
+        lifecycleScope.launch {
+            val res=homeActivityVm.getLocations("drivers")
+            if (res.success&&res.res!=null){
+                val locations=res.res
+                if (locations!=null&&::source.isInitialized){
+                    val result=utils.getShortestDistance(source,locations)
+                    Log.d("TAG", "getDriversLocations: $result")
+                    Toast.makeText(this@HomeActivity,result.second.name,Toast.LENGTH_LONG).show()
+
+
+                }else
+                    Toast.makeText(this@HomeActivity,"error getting best RD",Toast.LENGTH_LONG).show()
+            }
+        }
     }
 }

@@ -14,6 +14,7 @@ class App :Application() {
          homeActivityComponent= DaggerHomeActivityComponent
              .builder()
              .appModule(AppModule(this))
+             .homeActivityModule(HomeActivityModule(applicationContext))
              .build()
     }
 }

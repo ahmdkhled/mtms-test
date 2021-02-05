@@ -9,12 +9,12 @@ import javax.inject.Inject
 
 class SourceRepo @Inject constructor(val db :FirebaseFirestore) {
 
-    suspend fun getLocations(): Res<ArrayList<Location>> {
+    suspend fun getLocations(collection:String): Res<ArrayList<Location>> {
 
 
         try {
 
-            val result=db.collection("source")
+            val result=db.collection(collection)
                 .get()
                 .await()
 
@@ -37,4 +37,8 @@ class SourceRepo @Inject constructor(val db :FirebaseFirestore) {
         }
 
     }
-}
+
+
+
+
+    }

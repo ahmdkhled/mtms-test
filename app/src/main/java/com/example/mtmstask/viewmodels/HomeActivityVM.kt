@@ -1,8 +1,5 @@
 package com.example.mtmstask.viewmodels
 
-import android.app.Activity
-import android.content.Context
-import android.location.LocationManager
 import androidx.lifecycle.ViewModel
 import com.example.mtmstask.model.Location
 import com.example.mtmstask.model.Res
@@ -19,8 +16,8 @@ class HomeActivityVM @Inject constructor(val locationRepo: LocationRepo,val sour
      fun isLocationEnabled(): Boolean {
         return  locationRepo.isLocationEnabled()
     }
-    suspend fun getLocations(): Res<ArrayList<Location>> {
-        return sourceRepo.getLocations()
+    suspend fun getLocations(collection: String): Res<ArrayList<Location>> {
+        return sourceRepo.getLocations(collection)
     }
 
     suspend fun getAutoCompleteListener(query: String): Res<ArrayList<Location>> {

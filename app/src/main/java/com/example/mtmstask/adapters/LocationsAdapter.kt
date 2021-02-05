@@ -35,9 +35,8 @@ class LocationsAdapter @Inject constructor()
     fun addLocations(locations: ArrayList<Location>?){
         if (locations==null)return
         this.locations.clear()
-        notifyItemRangeRemoved(0, itemCount);
         this.locations.addAll(locations)
-        notifyItemRangeInserted(0,locations.size-1)
+        notifyDataSetChanged()
     }
 
     fun setOnLocationCLicked(onLocationClickedListener: OnLocationClickedListener){
