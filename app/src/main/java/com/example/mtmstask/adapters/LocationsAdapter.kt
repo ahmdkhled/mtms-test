@@ -28,6 +28,8 @@ class LocationsAdapter :RecyclerView.Adapter<LocationsAdapter.LocationViewHolder
 
     fun addLocations(locations: ArrayList<Location>?){
         if (locations==null)return
+        this.locations.clear()
+        notifyItemRangeRemoved(0, itemCount);
         this.locations.addAll(locations)
         notifyItemRangeInserted(0,locations.size-1)
     }

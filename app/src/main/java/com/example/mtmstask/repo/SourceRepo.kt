@@ -1,5 +1,6 @@
 package com.example.mtmstask.repo
 
+import android.util.Log
 import com.example.mtmstask.model.Location
 import com.example.mtmstask.model.Res
 import com.google.firebase.firestore.FirebaseFirestore
@@ -26,10 +27,11 @@ class SourceRepo {
                 }
                 return Res.SUCCCESS(locations)
             }else{
-                return Res.ERROR(null,"error getting locations")
+                return Res.ERROR(null,"error getting locations ....")
             }
 
         }catch (ex:Exception){
+            Log.d("TAG", "getLocations: err ${ex.message}")
             return Res.ERROR(null,"error getting locations")
         }
 

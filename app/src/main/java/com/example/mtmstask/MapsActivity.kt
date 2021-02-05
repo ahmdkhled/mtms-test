@@ -5,7 +5,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -54,10 +57,42 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         binding.myLocationIL
             .editText
-            ?.setOnClickListener{
-                getLocations()
+            ?.setOnFocusChangeListener{ view: View, b: Boolean ->
+                Log.d("TAG", "foucused: $b")
+                if (b) getLocations()
             }
 
+        binding.destinationIL
+            .editText
+            ?.addTextChangedListener(object :TextWatcher{
+                override fun afterTextChanged(s: Editable?) {
+
+                }
+
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    lifecycleScope.launch {
+                        val res=mapsActivityVm.getAutoCompleteListener(applicationContext,s.toString())
+                        Log.d("TAG", "onTextChanged: $res")
+                        if (res.success){
+                            val predictions=res.res
+                            if(predictions!=null){
+                                adapter.addLocations(predictions)
+                            }
+                        }
+
+                    }
+                }
+
+            })
 
     }
 
@@ -133,7 +168,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     fun getLocations(){
         lifecycleScope.launch {
+            Log.d("TAG", "getLocations: ")
             val res=mapsActivityVm.getLocations()
+            Log.d("TAG", "getLocations: $res")
             if (res.success&&res.res!=null){
                 val locations=res.res
                 adapter.addLocations(locations)

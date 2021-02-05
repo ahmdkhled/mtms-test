@@ -2,7 +2,10 @@ package com.example.mtmstask.repo
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Typeface
 import android.location.LocationManager
+import android.text.style.CharacterStyle
+import android.text.style.StyleSpan
 import android.util.Log
 import com.example.mtmstask.R
 import com.example.mtmstask.model.Location
@@ -82,31 +85,33 @@ class LocationRepo {
         )
     }
 
-    suspend fun getAutoComplete(context:Context,query: String) {
+    suspend fun getAutoComplete(context:Context,query: String): Res<ArrayList<Location>> {
         Places.initialize(context, context.getString(R.string.google_maps_key));
         val placesClient = Places.createClient(context);
 
         val token = AutocompleteSessionToken.newInstance()
-
-        // Create a RectangularBounds object.
-//        val bounds = RectangularBounds.newInstance(
-//            LatLng(-33.880490, 151.184363),
-//            LatLng(-33.858754, 151.229596)
-//        )
-        // Use the builder to create a FindAutocompletePredictionsRequest.
         val request =
             FindAutocompletePredictionsRequest.builder()
-                // Call either setLocationBias() OR setLocationRestriction().
-                //.setLocationBias(bounds)
-                //.setLocationRestriction(bounds)
-                //.setOrigin(LatLng(-33.8749937, 151.2041382))
-                //.setCountries("AU", "NZ")
+                .setCountries()
                 .setTypeFilter(TypeFilter.ADDRESS)
                 .setSessionToken(token)
                 .setQuery(query)
                 .build()
+        try {
+            val result=placesClient.findAutocompletePredictions(request)
+                .await()
 
-        placesClient.findAutocompletePredictions(request)
-            .await()
+            val predictions=result.autocompletePredictions
+            val locations=ArrayList<Location>()
+            for (prediction in predictions){
+                locations.add(Location(null,null,prediction.getFullText(StyleSpan(Typeface.BOLD)).toString()))
+            }
+            Log.d("TAG", "getAutoComplete: ${result.autocompletePredictions}")
+            return Res.SUCCCESS(locations)
+
+        }catch (ex:Exception){
+            Log.d("TAG", "getAutoComplete: ${ex.message}")
+            return Res.ERROR(null,"error getting suggesstions")
+        }
     }
 }
