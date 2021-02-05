@@ -1,4 +1,4 @@
-package com.example.mtmstask
+package com.example.mtmstask.view
 
 import android.Manifest
 import android.content.Intent
@@ -12,11 +12,15 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.mtmstask.R
 import com.example.mtmstask.adapters.LocationsAdapter
+import com.example.mtmstask.databinding.ActivityHomeBinding
 import com.example.mtmstask.databinding.ActivityMapsBinding
 import com.example.mtmstask.viewmodels.MapsActivityVM
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -25,6 +29,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -36,12 +41,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private val PERMISSION_ID=11
     private lateinit var mMap: GoogleMap
     lateinit var mapsActivityVm:MapsActivityVM
-    lateinit var binding:ActivityMapsBinding
+    lateinit var binding:ActivityHomeBinding
     lateinit var adapter:LocationsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding=DataBindingUtil.setContentView(this,R.layout.activity_maps)
+        binding=DataBindingUtil.setContentView(this,
+            R.layout.activity_home
+        )
 
         mapsActivityVm=ViewModelProvider(this).get(MapsActivityVM::class.java)
 
@@ -49,20 +56,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        binding.mapsView.toggle.setOnClickListener{
+            binding.drawerLayout.openDrawer(GravityCompat.START)
+
+        }
+
         requestPermission()
         adapter= LocationsAdapter()
 
-        binding.locationsRecycler.adapter=adapter
-        binding.locationsRecycler.layoutManager=LinearLayoutManager(this)
+        binding.mapsView.locationsRecycler.adapter=adapter
+        binding.mapsView.locationsRecycler.layoutManager=LinearLayoutManager(this)
 
-        binding.myLocationIL
+        binding.mapsView.myLocationIL
             .editText
             ?.setOnFocusChangeListener{ view: View, b: Boolean ->
                 Log.d("TAG", "foucused: $b")
                 if (b) getLocations()
             }
 
-        binding.destinationIL
+        binding.mapsView.destinationIL
             .editText
             ?.addTextChangedListener(object :TextWatcher{
                 override fun afterTextChanged(s: Editable?) {
