@@ -45,6 +45,9 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback,LocationsAdapter.On
     lateinit var binding:ActivityHomeBinding
     @Inject lateinit var factory:HomeActivityVMFactory
     @Inject lateinit var adapter:LocationsAdapter
+    var type="source"
+    lateinit var source:Location
+    lateinit var destination:Location
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,8 +104,11 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback,LocationsAdapter.On
                         val res=homeActivityVm.getAutoCompleteListener(s.toString())
                         Log.d("TAG", "onTextChanged: $res")
                         if (res.success){
+                            type="destination"
                             val predictions=res.res
                             if(predictions!=null){
+                                binding.mapsView.locationsRecycler.visibility=View.VISIBLE
+
                                 adapter.addLocations(predictions)
                             }
                         }
@@ -190,13 +196,19 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback,LocationsAdapter.On
             val res=homeActivityVm.getLocations()
             Log.d("TAG", "getLocations: $res")
             if (res.success&&res.res!=null){
+                type="source"
                 val locations=res.res
+                binding.mapsView.locationsRecycler.visibility=View.VISIBLE
                 adapter.addLocations(locations)
             }
         }
     }
 
     override fun onLocationClicked(location: Location) {
-
+        binding.mapsView.locationsRecycler.visibility=View.GONE
+        if (type.equals("source")){
+            source=location
+        }else
+            destination=location
     }
 }
