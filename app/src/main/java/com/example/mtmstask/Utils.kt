@@ -1,5 +1,7 @@
 package com.example.mtmstask
 
+import android.content.Context
+import android.net.ConnectivityManager
 import com.example.mtmstask.model.Location
 import javax.inject.Inject
 
@@ -50,5 +52,11 @@ class Utils @Inject constructor() {
 
     private fun rad2deg(rad: Double): Double {
         return rad * 180.0 / Math.PI
+    }
+
+    fun isConnected(context: Context): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return cm.isActiveNetworkMetered()
+
     }
 }

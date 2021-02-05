@@ -199,6 +199,11 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback,LocationsAdapter.On
     }
 
     fun getLocations(){
+        if (!utils.isConnected(this)){
+            Toast.makeText(this,"there is no connection availabe",Toast.LENGTH_LONG).show()
+            return
+        }
+
         lifecycleScope.launch {
             Log.d("TAG", "getLocations: ")
             val res=homeActivityVm.getLocations("source")
@@ -220,6 +225,10 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback,LocationsAdapter.On
             destination=location
     }
     fun getDriversLocations(){
+        if (!utils.isConnected(this)){
+            Toast.makeText(this,"there is no connection availabe",Toast.LENGTH_LONG).show()
+            return
+        }
         lifecycleScope.launch {
             val res=homeActivityVm.getLocations("drivers")
             if (res.success&&res.res!=null){
