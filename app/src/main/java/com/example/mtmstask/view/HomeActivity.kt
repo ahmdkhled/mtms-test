@@ -14,43 +14,49 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.mtmstask.App
 import com.example.mtmstask.R
 import com.example.mtmstask.adapters.LocationsAdapter
 import com.example.mtmstask.databinding.ActivityHomeBinding
-import com.example.mtmstask.databinding.ActivityMapsBinding
-import com.example.mtmstask.viewmodels.MapsActivityVM
+import com.example.mtmstask.model.Location
+import com.example.mtmstask.viewmodels.HomeActivityVM
+import com.example.mtmstask.viewmodels.HomeActivityVMFactory
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class HomeActivity : AppCompatActivity(), OnMapReadyCallback,LocationsAdapter.OnLocationClickedListener {
 
     private val LOCATION_REQUEST_CODE=22
     private val PERMISSION_ID=11
     private lateinit var mMap: GoogleMap
-    lateinit var mapsActivityVm:MapsActivityVM
+    lateinit var homeActivityVm:HomeActivityVM
     lateinit var binding:ActivityHomeBinding
-    lateinit var adapter:LocationsAdapter
+    @Inject lateinit var factory:HomeActivityVMFactory
+    @Inject lateinit var adapter:LocationsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding=DataBindingUtil.setContentView(this,
             R.layout.activity_home
         )
+        (application as App).homeActivityComponent.inject(this)
 
-        mapsActivityVm=ViewModelProvider(this).get(MapsActivityVM::class.java)
+
+        homeActivityVm=ViewModelProvider(this,factory).get(HomeActivityVM::class.java)
+
+
 
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
@@ -62,7 +68,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         requestPermission()
-        adapter= LocationsAdapter()
+
 
         binding.mapsView.locationsRecycler.adapter=adapter
         binding.mapsView.locationsRecycler.layoutManager=LinearLayoutManager(this)
@@ -92,7 +98,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                     lifecycleScope.launch {
-                        val res=mapsActivityVm.getAutoCompleteListener(applicationContext,s.toString())
+                        val res=homeActivityVm.getAutoCompleteListener(s.toString())
                         Log.d("TAG", "onTextChanged: $res")
                         if (res.success){
                             val predictions=res.res
@@ -138,7 +144,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     fun getCurrentLocation(){
-        if (!mapsActivityVm.isLocationEnabled(this)){
+        if (!homeActivityVm.isLocationEnabled()){
             Toast.makeText(this, "Please turn on your location ", Toast.LENGTH_LONG).show()
             val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
             startActivityForResult(intent,LOCATION_REQUEST_CODE)
@@ -151,7 +157,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         ){
 
 
-            val result=mapsActivityVm.getLocation(applicationContext)
+            val result=homeActivityVm.getLocation()
             Log.d("TAG", "getLocation : $result")
             val location=result.res
 
@@ -181,12 +187,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     fun getLocations(){
         lifecycleScope.launch {
             Log.d("TAG", "getLocations: ")
-            val res=mapsActivityVm.getLocations()
+            val res=homeActivityVm.getLocations()
             Log.d("TAG", "getLocations: $res")
             if (res.success&&res.res!=null){
                 val locations=res.res
                 adapter.addLocations(locations)
             }
         }
+    }
+
+    override fun onLocationClicked(location: Location) {
+
     }
 }

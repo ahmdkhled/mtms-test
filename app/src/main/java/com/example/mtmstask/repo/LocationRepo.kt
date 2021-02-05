@@ -17,18 +17,17 @@ import com.google.android.libraries.places.api.model.TypeFilter
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 
 
-class LocationRepo {
+class LocationRepo @Inject constructor(val ctx: Context) {
 
     @SuppressLint("MissingPermission")
-    suspend fun getLocation(
-        ctx: Context
-    )= suspendCoroutine<Res<Location>> { cont->
+    suspend fun getLocation()= suspendCoroutine<Res<Location>> { cont->
 
         val mFusedLocationClient = LocationServices.getFusedLocationProviderClient(ctx)
 
@@ -77,17 +76,17 @@ class LocationRepo {
             , null);
     }
 
-     fun isLocationEnabled(context: Context): Boolean {
+     fun isLocationEnabled(): Boolean {
         val locationManager =
-            context.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+            ctx.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
         return locationManager!!.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
             LocationManager.NETWORK_PROVIDER
         )
     }
 
-    suspend fun getAutoComplete(context:Context,query: String): Res<ArrayList<Location>> {
-        Places.initialize(context, context.getString(R.string.google_maps_key));
-        val placesClient = Places.createClient(context);
+    suspend fun getAutoComplete(query: String): Res<ArrayList<Location>> {
+        Places.initialize(ctx, ctx.getString(R.string.google_maps_key));
+        val placesClient = Places.createClient(ctx);
 
         val token = AutocompleteSessionToken.newInstance()
         val request =

@@ -7,10 +7,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mtmstask.R
 import com.example.mtmstask.databinding.LocationItemBinding
 import com.example.mtmstask.model.Location
+import javax.inject.Inject
 
-class LocationsAdapter :RecyclerView.Adapter<LocationsAdapter.LocationViewHolder>(){
+class LocationsAdapter @Inject constructor()
+    :RecyclerView.Adapter<LocationsAdapter.LocationViewHolder>(){
 
      var locations=ArrayList<Location>()
+    lateinit var onLocationClickedListener:OnLocationClickedListener
+
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationViewHolder {
         val binding=DataBindingUtil.inflate<LocationItemBinding>(LayoutInflater.from(parent.context),
@@ -24,6 +29,7 @@ class LocationsAdapter :RecyclerView.Adapter<LocationsAdapter.LocationViewHolder
 
     override fun onBindViewHolder(holder: LocationViewHolder, position: Int) {
         holder.binding.location=locations[position]
+        onLocationClickedListener.onLocationClicked(locations[position])
     }
 
     fun addLocations(locations: ArrayList<Location>?){
@@ -34,7 +40,16 @@ class LocationsAdapter :RecyclerView.Adapter<LocationsAdapter.LocationViewHolder
         notifyItemRangeInserted(0,locations.size-1)
     }
 
+    fun setOnLocationCLicked(onLocationClickedListener: OnLocationClickedListener){
+        this.onLocationClickedListener=onLocationClickedListener
+
+    }
+
     class LocationViewHolder(val binding: LocationItemBinding) :RecyclerView.ViewHolder(binding.root){
 
+    }
+
+    interface OnLocationClickedListener{
+        fun onLocationClicked(location:Location)
     }
 }

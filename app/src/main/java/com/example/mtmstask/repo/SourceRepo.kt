@@ -5,11 +5,12 @@ import com.example.mtmstask.model.Location
 import com.example.mtmstask.model.Res
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class SourceRepo {
+class SourceRepo @Inject constructor(val db :FirebaseFirestore) {
 
     suspend fun getLocations(): Res<ArrayList<Location>> {
-        val db=FirebaseFirestore.getInstance()
+
 
         try {
 
